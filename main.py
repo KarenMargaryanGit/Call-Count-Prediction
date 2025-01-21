@@ -1,3 +1,29 @@
+import requests
+import pandas as pd
+
+# Define API endpoint and key
+api_key = "YOUR_API_KEY"
+url = "https://calendarific.com/api/v2/holidays"
+params = {
+    "api_key": api_key,
+    "country": "AM",
+    "year": 2024,
+}
+
+# Make the API request
+response = requests.get(url, params=params)
+data = response.json()
+
+# Parse holidays into a DataFrame
+holidays = data["response"]["holidays"]
+holiday_df = pd.DataFrame({
+    "date": [holiday["date"]["iso"] for holiday in holidays],
+    "name": [holiday["name"] for holiday in holidays],
+    "description": [holiday["description"] for holiday in holidays],
+})
+
+print(holiday_df)
+
 import holidays
 import pandas as pd
 
