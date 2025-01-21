@@ -1,3 +1,22 @@
+import holidays
+import pandas as pd
+
+# Define the year range and country
+armenian_holidays = holidays.Arm(country="AM")
+
+# Create a DataFrame of dates
+date_range = pd.date_range(start="2024-01-01", end="2024-12-31")
+
+# Check if each date is a holiday
+holiday_df = pd.DataFrame({
+    "date": date_range,
+    "is_holiday": date_range.isin(armenian_holidays),
+    "holiday_name": [armenian_holidays.get(date) for date in date_range]
+})
+
+print(holiday_df)
+
+
 import pandas as pd
 
 # Load the dataset
