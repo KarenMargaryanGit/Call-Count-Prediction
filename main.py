@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 # Define API endpoint and key
-api_key = "YOUR_API_KEY"
+api_key = "YUmpV6u3l4qo7CrSLU0BSRslmFusIkeJ"
 url = "https://calendarific.com/api/v2/holidays"
 params = {
     "api_key": api_key,
