@@ -1,3 +1,80 @@
+def train_xgboost_model(df):
+    """
+    Train an XGBoost model using all relevant features
+    """
+    # Prepare features - including all potentially important features
+    feature_cols = [
+        # Time-based features
+        'month', 'year', 'day_of_month', 'week_of_year',
+        'month_sin', 'month_cos', 'day_of_week_sin', 'day_of_week_cos',
+        'quarter', 'is_holiday',
+        
+        # Operational features
+        'number_of_unique_logins', 
+        'working_time',
+        
+        # Call metrics
+        'answered_calls',
+        'missed_calls',
+        'unique_numbers',
+        'Call duration',
+        'time_to_next_call',
+        'calls_from_clients',
+        'share_of_answered_calls',
+        'share_of_calls_from_registered_number',
+        
+        # Client metrics
+        'number_of_new_clients',
+        'number_of_new_clients_last_7_days',
+        'number_of_new_clients_last_30_days',
+        'clients_count'
+    ]
+    
+    # Remove any features that don't exist in the dataset
+    feature_cols = [col for col in feature_cols if col in df.columns]
+    
+    # Check for categorical columns and handle accordingly
+    categorical_features = []
+    for col in feature_cols:
+        if df[col].dtype == 'object' or df[col].dtype == 'bool':
+            categorical_features.append(col)
+    
+    # Create feature matrix X
+    X = df[feature_cols].copy()
+    
+    # Convert boolean/categorical columns to numeric
+    for col in categorical_features:
+        X[col] = X[col].astype(int)
+    
+    y = df['total_calls']
+    
+    # Train XGBoost with parameters tuned for time series
+    model = xgb.XGBRegressor(
+        objective='reg:squarederror',
+        n_estimators=200,
+        learning_rate=0.05,
+        max_depth=6,
+        min_child_weight=2,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=42
+    )
+    
+    model.fit(X, y)
+    
+    # Get feature importance
+    feature_importance = pd.DataFrame({
+        'feature': feature_cols,
+        'importance': model.feature_importances_
+    }).sort_values('importance', ascending=False)
+    
+    print("\nTop 10 Most Important Features:")
+    print(feature_importance.head(10))
+    
+    return model, feature_cols
+
+
+
 import pandas as pd
 import numpy as np
 from prophet import Prophet
