@@ -1,6 +1,9 @@
+import xgboost as xgb
+import pandas as pd
+
 def train_xgboost_model(df):
     """
-    Train an XGBoost model using all relevant features
+    Train an XGBoost model using all relevant features.
     """
     # Prepare features - including all potentially important features
     feature_cols = [
@@ -42,10 +45,16 @@ def train_xgboost_model(df):
     # Create feature matrix X
     X = df[feature_cols].copy()
     
+    # Handle missing values
+    X = X.fillna(0)
+    
     # Convert boolean/categorical columns to numeric
     for col in categorical_features:
         X[col] = X[col].astype(int)
     
+    # Ensure target variable exists
+    if 'total_calls' not in df.columns:
+        raise ValueError("The target variable 'total_calls' is missing from the dataset.")
     y = df['total_calls']
     
     # Train XGBoost with parameters tuned for time series
@@ -66,12 +75,13 @@ def train_xgboost_model(df):
     feature_importance = pd.DataFrame({
         'feature': feature_cols,
         'importance': model.feature_importances_
-    }).sort_values('importance', ascending=False)
+    }).sort_values('importance', ascending=False).reset_index(drop=True)
     
     print("\nTop 10 Most Important Features:")
     print(feature_importance.head(10))
     
     return model, feature_cols
+
 
 
 
